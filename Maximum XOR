@@ -1,0 +1,36 @@
+typedef struct TrieNode {
+    struct TrieNode* bit[2];
+} TrieNode;
+inline TrieNode* createNode() {
+    return (TrieNode*)(TrieNode*)calloc(1, sizeof(TrieNode));
+}
+inline void insert(TrieNode* root, int val) {
+    TrieNode* node = root;
+    for (int i = 31; i >= 0; --i) {
+        const int bit = (val >> i) & 1;
+        if (!node->bit[bit]) {
+            node->bit[bit] = createNode();
+        }
+
+        node = node->bit[bit];
+    }
+}
+int findMaximumXOR(int* nums, int s) {
+    TrieNode* root = createNode();
+    for (int i = 0; i < s; ++i) {
+        insert(root, nums[i]);
+    }
+    int res = INT_MIN;
+    for (int i = 0; i < s; ++i) {
+        TrieNode* node = root;
+        int cur_max = 0;
+        for (int j = 31; j >= 0; --j) {
+            const int cur_bit = (nums[i] >> j) & 1;
+            const int opposite_bit = !cur_bit;
+            cur_max |= (node->bit[opposite_bit] ? 1 : 0) << j;
+            node = node->bit[node->bit[opposite_bit] ? opposite_bit : cur_bit];
+        }
+        res = (cur_max > res) ? cur_max : res;
+    }
+    return res;
+}
