@@ -1,0 +1,39 @@
+int compare(const void* a, const void* b) {
+    return (*(int*)a - *(int*)b);
+}
+int subarrayBitwiseORs(int* arr, int arrSize) {
+    if (arrSize == 0) return 0;
+    int* unique_results = (int*)malloc(32 * arrSize * sizeof(int));
+    int total_count = 0;
+    int prev_start = 0;
+    int prev_end = 0;
+    for (int i = 0; i < arrSize; i++) {
+        int current_val = arr[i];
+        int curr_start = total_count;
+        unique_results[total_count++] = current_val;
+        for (int j = prev_start; j < prev_end; j++) {
+            int or_res = current_val | unique_results[j];
+            int is_duplicate = 0;
+            for (int k = curr_start; k < total_count; k++) {
+                if (unique_results[k] == or_res) {
+                    is_duplicate = 1;
+                    break;
+                }
+            }
+            if (!is_duplicate) {
+                unique_results[total_count++] = or_res;
+            }
+        }
+        prev_start = curr_start;
+        prev_end = total_count;
+    }
+    qsort(unique_results, total_count, sizeof(int), compare);
+    int final_unique_count = (total_count > 0) ? 1 : 0;
+    for (int i = 1; i < total_count; i++) {
+        if (unique_results[i] != unique_results[i - 1]) {
+            unique_results[final_unique_count++] = unique_results[i];
+        }
+    }
+    free(unique_results);
+    return final_unique_count;
+}
